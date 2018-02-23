@@ -30,6 +30,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+
 //import org.bson.Document;
 import org.json.JSONObject;
 import org.json.XML;
@@ -42,6 +43,8 @@ import com.julie.dbConnect.ConnectDB;
 //import com.mongodb.reactivestreams.client.MongoClient;
 //import com.mongodb.util.JSON;
 
+import com.julie.main.Challenge;
+
 import org.apache.log4j.*;
 
 
@@ -49,7 +52,7 @@ import org.apache.log4j.*;
  * @author Julie.Meese
  *
  */
-public class FileProcessor extends Thread {
+public class FileProcessor {
 	
 	private static Logger logger = Logger.getRootLogger();
 	private static String url1 = "D:\\Downloads\\enwiki-latest-pages-articles-multistream.xml";
@@ -59,7 +62,6 @@ public class FileProcessor extends Thread {
 	//private static Collector<String,String, ConcurrentMap<String, List<String>>> collector;
 	//private ConcurrentMap<String, Object> map = new ConcurrentHashMap<String, Object>();
 	private static final long MAX_WORDS = 5000;
-	
 	
 	public String getFileAsString() {
 		String file = "";
@@ -76,7 +78,7 @@ public class FileProcessor extends Thread {
 	public Stream<String> getFileAsStream() throws IOException {
 		
 		//String file = url1;
-		String file = url1;
+		String file = url3;
 		String path = "D:\\Downloads\\" + file;
 	    Stream<String> stream = Files.lines(Paths.get(path));
 	    //stream.forEach(System.out::println);
@@ -153,13 +155,13 @@ public class FileProcessor extends Thread {
 		String url = url3;*/
 		for(String distinctkey : fullwordlistDistinct){
 			Integer value = Collections.frequency(fullwordlist, distinctkey);
-		logger.info("adding the word and its frequency to the Map finalMap..." );
+		logger.info("adding the word " + distinctkey + " and its frequency " +  value + " to the Map finalMap..." );
 			finalMap.put(distinctkey, value);
-			System.out.println("Final Map Size: " + finalMap.size());
-			System.out.println("FinalMap : " + finalMap.containsKey(distinctkey) +  ", " + finalMap.containsValue(value));
-			System.out.println("word: " + distinctkey);
-			System.out.println("frequency: " + value);
-			System.out.println("\n");
+//			System.out.println("Final Map Size: " + finalMap.size());
+//			System.out.println("FinalMap : " + finalMap.containsKey(distinctkey) +  ", " + finalMap.containsValue(value));
+//			System.out.println("word: " + distinctkey);
+//			System.out.println("frequency: " + value);
+//			System.out.println("\n");
 		}
 		}
 		return finalMap;
@@ -195,12 +197,6 @@ public class FileProcessor extends Thread {
 		Map<String,Integer> wordmap = new HashMap<String, Integer>();
 		return wordmap;
 	}
-	
-	/*public void splitStringIntoWords(Stream<String> words) {
-		String separators = "^[^a-zA-Z0-9-]*$";
-		String[] parts = words.toString().split(separators);
-	}*/
-	
 	
 	
 	/*Implementations of Collector that implement various useful reduction operations, such as accumulating elements into collections, summarizing elements according to various criteria, etc. 
@@ -238,91 +234,91 @@ public class FileProcessor extends Thread {
 	         students.stream()
 	                 .collect(Collectors.partitioningBy(s -> s.getGrade() >= PASS_THRESHOLD));*/
 	
-public void xmlToJson() {
-		
-	    String fileName = "D:\\tempjson.txt";
-	    try {           
-	        
-	    	
-	        
-	        
-	       
-			
-	        StringBuilder builder =  new StringBuilder();  
-//	        int ptr = 0;  
-//	        while ((ptr = inputStream.read()) != -1 ) {  
-//	            builder.append((char) ptr);
-//	            //System.out.println(ptr);
-//	        }  
-	
-	        String xml  = builder.toString();  
-	        JSONObject jsonObj = XML.toJSONObject(xml);   
-	         System.out.println(jsonObj.toString()); 
-	         System.out.println(jsonObj.toString().split(",").length);
-	        // Assume default encoding.
-	        FileWriter fileWriter =
-	            new FileWriter(fileName);
-	
-	        // Always wrap FileWriter in BufferedWriter.
-	        BufferedWriter bufferedWriter =
-	            new BufferedWriter(fileWriter);
-	
-	        // Always close files.
-	
-	        for(int i= 0 ;i < jsonObj.toString().split(",").length; i ++) {
-	           System.out.println(jsonObj.toString().split(",")[i]);
-	           bufferedWriter.write(jsonObj.toString().split(",")[i]);
-	           bufferedWriter.write("\n");
-	        }
-	
-	        bufferedWriter.close();
-	   // }
-	        
-	        
-	        //______________________________________________________________________________
-	        
-	        String path = "D:\\Workspaces\\JAVA DEV\\Platform Engineer Challenge\\src\\com\\julie\\main\\";
-	        String xmlString = "";
-			//File file2 = new File(path + "partfile.txt");
-	        //File file2 = new File(path + "xmlexample.txt");
-			BufferedReader reader = null;	
-			
-			try {
-				String line;
-				reader = Files.newBufferedReader(Paths.get(path + "xmlexample.xml"));
-			
-				while((line = reader.readLine()) != null) {
-					System.out.println(line);
-					if(line.length() > 0 ) {
-					xmlString += reader.readLine();
-				}
-			}
-				
-				//System.out.print(partfile);
-			} catch (IOException e) {
-				e.printStackTrace();
-			}	
-			
-			
-	        //______________________________________________________________________________ 
-	      
-	        //System.out.print("xmlString:  " + xmlString);
-	        JSONObject jsonObj2 = XML.toJSONObject(xmlString);
-	        //JSONArray jsonArr = jsonObj2.getJSONArray("food");
-	        //System.out.println(jsonObj2.toString());
-//	        for (int i = 0; i < jsonArr.length(); i++) {
-//	        	System.out.println(jsonArr.toString());
+//public void xmlToJson() {
+//		
+//	    String fileName = "D:\\tempjson.txt";
+//	    try {           
+//	        
+//	    	
+//	        
+//	        
+//	       
+//			
+//	        StringBuilder builder =  new StringBuilder();  
+////	        int ptr = 0;  
+////	        while ((ptr = inputStream.read()) != -1 ) {  
+////	            builder.append((char) ptr);
+////	            //System.out.println(ptr);
+////	        }  
+//	
+//	        String xml  = builder.toString();  
+//	        JSONObject jsonObj = XML.toJSONObject(xml);   
+//	         System.out.println(jsonObj.toString()); 
+//	         System.out.println(jsonObj.toString().split(",").length);
+//	        // Assume default encoding.
+//	        FileWriter fileWriter =
+//	            new FileWriter(fileName);
+//	
+//	        // Always wrap FileWriter in BufferedWriter.
+//	        BufferedWriter bufferedWriter =
+//	            new BufferedWriter(fileWriter);
+//	
+//	        // Always close files.
+//	
+//	        for(int i= 0 ;i < jsonObj.toString().split(",").length; i ++) {
+//	           System.out.println(jsonObj.toString().split(",")[i]);
+//	           bufferedWriter.write(jsonObj.toString().split(",")[i]);
+//	           bufferedWriter.write("\n");
 //	        }
-	    }
+//	
+//	        bufferedWriter.close();
+//	   // }
+//	        
+//	        
+//	        //______________________________________________________________________________
+//	        
+//	        String path = "D:\\Workspaces\\JAVA DEV\\Platform Engineer Challenge\\src\\com\\julie\\main\\";
+//	        String xmlString = "";
+//			//File file2 = new File(path + "partfile.txt");
+//	        //File file2 = new File(path + "xmlexample.txt");
+//			BufferedReader reader = null;	
+//			
+//			try {
+//				String line;
+//				reader = Files.newBufferedReader(Paths.get(path + "xmlexample.xml"));
+//			
+//				while((line = reader.readLine()) != null) {
+//					System.out.println(line);
+//					if(line.length() > 0 ) {
+//					xmlString += reader.readLine();
+//				}
+//			}
+//				
+//				//System.out.print(partfile);
+//			} catch (IOException e) {
+//				e.printStackTrace();
+//			}	
+//			
+//			
+//	        //______________________________________________________________________________ 
+//	      
+//	        //System.out.print("xmlString:  " + xmlString);
+//	        JSONObject jsonObj2 = XML.toJSONObject(xmlString);
+//	        //JSONArray jsonArr = jsonObj2.getJSONArray("food");
+//	        //System.out.println(jsonObj2.toString());
+////	        for (int i = 0; i < jsonArr.length(); i++) {
+////	        	System.out.println(jsonArr.toString());
+////	        }
+//	    }
 	        
-	      catch(IOException ex) {
-	            System.out.println(
-	                "Error writing to file '"
-	                + fileName + "'");
-	            // Or we could just do this:
-	             ex.printStackTrace();
-	        } catch(Exception e) {  
-	            e.printStackTrace();  
-	        }
-	}
+//	      catch(IOException ex) {
+//	            System.out.println(
+//	                "Error writing to file '"
+//	                + fileName + "'");
+//	            // Or we could just do this:
+//	             ex.printStackTrace();
+//	        } catch(Exception e) {  
+//	            e.printStackTrace();  
+//	        }
+//	}
 }
