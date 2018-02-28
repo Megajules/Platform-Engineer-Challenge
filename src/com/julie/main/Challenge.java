@@ -7,17 +7,20 @@ package com.julie.main;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Map;
-import com.julie.dbConnect.*;
+ import com.julie.dbConnect.*;
 import com.julie.factory.documents.WordDocument;
 import com.julie.processFiles.*;
 import com.mongodb.client.FindIterable;
 import com.mongodb.client.model.Filters;
 //import com.mongodb.reactivestreams.client.MongoCollection;
 
+
+
 import org.apache.log4j.*;
 import org.bson.Document;
 
 import com.julie.main.DisplayConsole;
+import com.julie.dbConnect.*;
 
 /**
  * @author Julie.Meese
@@ -26,18 +29,38 @@ import com.julie.main.DisplayConsole;
 public class Challenge extends Thread {
 	
 	private static Logger logger = Logger.getRootLogger();
-	private ConnectDB conn = new ConnectDB();
+	private static Shard shard = new Shard();
 	//private static MongoCollection<Document> collection;
 	//private static MongoDatabase database;
-	private static String collname = "wordsCollection";
-	private static String dbname = "challengeDb"; 
+	private static ConnectDB conn;
+	private static String collname; // = "wordsCollection";
+	private static String dbname; //= "challengeDb";
+	private static String url; // = "D:\\Workspaces\\JAVA DEV\\Platform Engineer Challenge\\src\\com\\julie\\main\\partfile.txt";//"D:\\Downloads\\enwiki-latest-pages-articles-multistream.xml";
+	private static DisplayConsole console = new DisplayConsole();
+	private static String host;
+	private static Integer port;
 	
 	/**
 	 * @param args
-	 * @throws IOException 
+	 * @throws Exception 
 	 */
-	public static void main(String[] args) throws IOException {
+	public static void main(String[] args) throws Exception {
 		logger.info("Initialising Challenge...");
+		
+		if(args.length > 0) {
+			
+			url = ".//" + args[1];
+			dbname = args[3];
+			collname = args[5];
+			host = args[7];
+			port = Integer.parseInt(args[9]);
+			conn = new ConnectDB();
+			conn.setHost(host);
+			conn.setPort(port);
+		}
+		
+		//shard.setupCluster();
+		
 		Challenge challenge = new Challenge();
 
 		try{
@@ -45,33 +68,26 @@ public class Challenge extends Thread {
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		}
-		challenge.printAllDocumentsInCollection();
-		logger.info("\nEnd of initialisation phase");
 		
-		while(true) {
-		(new Thread(new DisplayConsole())).start();
-		Thread.currentThread().setPriority(NORM_PRIORITY);
-        }
+		console.display();
 	}
 	
-	public void run(){
-		
-	}
 	
 	private void connect() {
-		
+		System.out.println("Dropping Collection: " + collname);
 		conn.dropCollection();
+		System.out.println("Dropping Database: " + dbname);
 		conn.dropDatabase();
 		conn.createDatabase(dbname);
 		conn.createCollection(collname);
 		//database = conn.getDatabase();
 		//collection = conn.getCollection();
-		conn.shardCollection();
+		//conn.shardCollection();
 	}
 	
 	private void init() throws IOException{
 		connect();
-		FileProcessor proc = new FileProcessor();
+		FileProcessor proc = new FileProcessor(url);
 		logger.info("Starting processing input file...");
 		Map<String, Integer> words = proc.countDistinctWords();
 		System.out.println("Words Map Size = " + words.size());
@@ -79,46 +95,25 @@ public class Challenge extends Thread {
 		logger.info("Finished processing input file...");
 		
 		String type = "word";
-		//String url = "D:\\Downloads\\enwiki-latest-pages-articles-multistream.xml";
-		String url = "D:\\Workspaces\\JAVA DEV\\Platform Engineer Challenge\\src\\com\\julie\\main\\partfile.txt";
+		//String url = "D:\\Workspaces\\JAVA DEV\\Platform Engineer Challenge\\src\\com\\julie\\main\\partfile.txt";
 		//List<Document> documents = new ArrayList<Document>();
 		
 		for(Map.Entry<String, Integer> entry : words.entrySet()) {
-			 //if(!(entry.getKey().isEmpty())){
+			 if(!(entry.getKey().isEmpty())){
 				 String word = entry.getKey();
 				 Integer frequency = entry.getValue();
 				 System.out.println("word: " + word);
 			     System.out.println("frequency: " + frequency);
 			     
 				 Document doc = new Document("type", type).append("url", url).append("word", word).append("frequency", frequency);
-				 conn.getCollection(collname).insertOne(doc);
-				 //documents.add();
-//				 System.out.println("adding to document: ");
-//				 System.out.println("word: " + word);
-//			     System.out.println("frequency: " + frequency);
-				    
-				 			 
-				// insertDocument(type, url, word, frequency);
-//				 	System.out.print("total words: " + words.size());
-//					System.out.println("\n");
-//				    System.out.println("Inserted from map to database");
-//				 	System.out.println("word: " + word);
-//					System.out.println("frequency: " + frequency);
-//					System.out.println("\n");
-				 //Map<String, Integer> wordfrequency = new HashMap<String, Integer>();
-				// wordfrequency.put(word, frequency);
-				 
-//			 } else {
-//				 System.out.println("Something went wrong\n");
-//			 }
-			 
-			// MongoCollection<Document> coll = conn.getCollection(collname);
-			// conn.getCollection(collname).insertMany(documents);
-			// coll.count();
+				 conn.getCollection(collname).insertOne(doc);	 
+			 }
 		}
 		
 		String fieldtoindex = "word";
 		conn.createIndex(collname, fieldtoindex);
+		(new Thread(new DisplayConsole())).start();
+		Thread.currentThread().setPriority(NORM_PRIORITY);
 	}
 	
 	 public void findDocuments() {
@@ -142,16 +137,6 @@ public class Challenge extends Thread {
 			conn.getCollection(collname).insertOne(worddoc);
 	 }
 			
-	
-	/*public void insertDocument(String type, String url, String word, Integer frequency ) {
-		Document worddoc = new WordDocument()
-	      .append("type", type)
-	      .append("url", url)
-	      .append("word", word)
-		  .append("frequency", frequency.toString());
-		conn.getCollection(collname).insertOne(worddoc);
-	}*/
-	
 	public void updateDocument(String type, String url, String word, Integer frequency ) {
 		Document worddoc = new WordDocument()
 	      .append("type", type)
@@ -176,7 +161,19 @@ public class Challenge extends Thread {
 	   	System.out.println("word:  " + word);
 	   	System.out.println("frequency:  " + frequency.toString());
 	   	}
-	}	
+	}
+	
+	public String getUrl() {
+		return url;
+	}
+	
+	public String getHost() {
+		return host;
+	}
+	
+	public Integer getPort() {
+		return port;
+	}
 }
 
 

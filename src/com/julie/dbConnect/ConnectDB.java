@@ -8,14 +8,19 @@ import org.bson.Document;
 //import org.bson.conversions.Bson;
 
 
+
+
 import com.mongodb.MongoClient;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import com.mongodb.BasicDBObject;
 import com.mongodb.CommandResult;
 import com.mongodb.DBObject;
+import com.mongodb.MongoClientURI;
+import com.mongodb.ReplicaSetStatus;
 //import com.mongodb.Mongo;
 import com.mongodb.client.model.Indexes;
+import com.julie.dbConnect.MongoClientS;
 
 /**
  * @author Julie.Meese
@@ -27,14 +32,34 @@ public class ConnectDB {
 	private static MongoClient mongo;
 	private static MongoCollection<Document> collection;
 	private static String collname = "wordsCollection";
-	private static String dbname = "challengeDB";
+	private static String dbname = "challengeDb";
+	private static String host = "";
+	private static Integer port = 0;
 	
 	 public static MongoClient createMongoClient() {
 		   logger.info( "Starting create Mongo Client...");
-		      mongo = new MongoClient( "localhost" , 27017 );
+		   //mongo = MongoClientS.getInstance().getMongoClient("localhost" , 27017);
+		      mongo = new MongoClient( host, port );
+		   //mongo = new MongoClient(
+		   //mongo = MongoClientS.getInstance().getMongoClient("localhost" , 27017);
+		      //mongo = new MongoClient( "localhost" , 27017 );
+		   
+		    mongo = new MongoClient(
+		    new MongoClientURI("mongodb://localhost:27017,localhost:27018,localhost:27019"));
 		      logger.info("Mongo Client created successfully");
+		      
+		      ReplicaSetStatus status = mongo.getReplicaSetStatus();
+		      System.out.print("Replica Set Status " + status);
 		      return mongo;
 	   }
+	 
+	 public void setHost(String host){
+		 this.host = host;
+	 }
+	 
+	 public void setPort(Integer port){
+		 this.port = port;
+	 }
 	 
 	public static MongoClient getMongoClient(){
 		return mongo;
