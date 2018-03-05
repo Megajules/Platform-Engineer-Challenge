@@ -34,4 +34,6 @@ To process large source files of several gigabytes, it will be necessary to crea
 
 Create a Shard Server:
 
+The committed bat file contains the steps taken to create the shards.
+
 
